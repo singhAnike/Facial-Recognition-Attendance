@@ -1,6 +1,3 @@
-from distutils.cmd import Command
-from struct import pack
-from subprocess import CompletedProcess
 import cv2
 import csv
 import numpy as np
@@ -10,10 +7,8 @@ from datetime import datetime
 import tkinter.messagebox
 
 
-# Giving a Function To The Button
 def TakeAttendance():
-    tkinter.messagebox.showinfo(
-        "Encoding Start.",  "please wait a few seconds")
+    tkinter.messagebox.showinfo("Encoding Start.", "Please wait a few seconds")
     path = 'images'
     images = []
     personNames = []
@@ -25,9 +20,6 @@ def TakeAttendance():
         images.append(current_Img)
         personNames.append(os.path.splitext(cu_img)[0])
     print(personNames)
-
-
-# Face Encoding
 
     def faceEncodings(images):
         encodeList = []
@@ -53,8 +45,7 @@ def TakeAttendance():
 
     encodeListKnown = faceEncodings(images)
     print('All Encodings Complete!!!')
-    tkinter.messagebox.showinfo(
-        "Encoding Completed.",  "All Encodings Complete!!!")
+    tkinter.messagebox.showinfo("Encoding Completed.", "All Encodings Complete!!!")
 
     cap = cv2.VideoCapture(0)
 
@@ -68,30 +59,21 @@ def TakeAttendance():
         faces = new_func(faces)
 
         facesCurrentFrame = face_recognition.face_locations(faces)
-        encodesCurrentFrame = face_recognition.face_encodings(
-            faces, facesCurrentFrame)
+        encodesCurrentFrame = face_recognition.face_encodings(faces, facesCurrentFrame)
 
         for encodeFace, faceLoc in zip(encodesCurrentFrame, facesCurrentFrame):
-            matches = face_recognition.compare_faces(
-                encodeListKnown, encodeFace)
-            faceDis = face_recognition.face_distance(
-                encodeListKnown, encodeFace)
-
-            # print(faceDis)
+            matches = face_recognition.compare_faces(encodeListKnown, encodeFace)
+            faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
             matchIndex = np.argmin(faceDis)
 
             if matches[matchIndex]:
                 name = personNames[matchIndex].upper()
 
-                # print(name)
-
                 y1, x2, y2, x1 = faceLoc
                 y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                cv2.rectangle(frame, (x1, y2 - 35), (x2, y2),
-                              (0, 255, 0), cv2.FILLED)
-                cv2.putText(frame, name, (x1 + 6, y2 - 6),
-                            cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
+                cv2.rectangle(frame, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
+                cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
                 Attendance(name)
 
         cv2.imshow('Webcam', frame)
@@ -101,8 +83,10 @@ def TakeAttendance():
     cap.release()
     cv2.destroyAllWindows()
 
-    # Show Attendance
-
 
 def showAttendance():
-    os.startfile("Attendance.csv")
+    try:
+        os.startfile("Attendance.csv")
+    except OSError:
+        tkinter.messagebox.showinfo("File Error", "Attendance file not found!")
+
