@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 import webbrowser
-from SourceCode import *
+from faceencoding import*
 
 # GUI Implementation for Automated Attendance System
 win = Tk()
@@ -54,12 +54,12 @@ win.title("Automated Attendance System")
 # Creating buttons
 # Creating The Button For Taking Attendance
 button1 = Button(win, text="Take Attendance",
-                 bg='DodgerBlue4', fg='white', height='2', width='15', border='5', font=("Times New Roman", 11), command=TakeAttendance)
+                 bg='DodgerBlue4', fg='white', height='2', width='15', border='5', font=("Times New Roman", 11), command=take_attendance)
 button1.pack(pady='10')
 
 # Creating The Button To show Attendance
 button2 = Button(win, bg="DodgerBlue4", fg="white", text="View Attendance",
-                 height='2', width='15', border='5', font=("Times New Roman", 11), command=showAttendance)
+                 height='2', width='15', border='5', font=("Times New Roman", 11), command=show_attendance)
 button2.pack(pady='10')
 
 # New student registration function
@@ -73,12 +73,12 @@ button3 = Button(win, bg="DodgerBlue4", fg="white", text="Click to register a ne
 button3.pack()
 
 # Function definition
-def Help():
+def help():
     webbrowser.open("https://forms.gle/NkFb5ASxxyZSvM426")
 
 # Button for Help
 button4 = Button(win, bg="DodgerBlue4", fg="white", text="Get Help",
-                 height='2', width='8', border='5', font=("Times New Roman", 11), command=Help)
+                 height='2', width='8', border='5', font=("Times New Roman", 11), command=help)
 button4.pack()
 
 def exit_program():

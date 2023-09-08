@@ -7,56 +7,39 @@ from datetime import datetime
 import tkinter.messagebox
 
 
-def TakeAttendance():
-    tkinter.messagebox.showinfo("Encoding Start.", "Please wait a few seconds")
-    path = 'images'
-    images = []
-    personNames = []
-    myList = os.listdir(path)
-    print(myList)
+def faceEncodings(images):
+    encodeList = []
+    for img in images:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        encode = face_recognition.face_encodings(img)[0]
+        encodeList.append(encode)
+    return encodeList
 
-    for cu_img in myList:
-        current_Img = cv2.imread(f'{path}/{cu_img}')
-        images.append(current_Img)
-        personNames.append(os.path.splitext(cu_img)[0])
-    print(personNames)
+def attendance(name):
+    with open('Attendance.csv', 'r+') as f:
+        myDataList = f.readlines()
+        nameList = []
+        for line in myDataList:
+            entry = line.split(',')
+            nameList.append(entry[0])
 
-    def faceEncodings(images):
-        encodeList = []
-        for img in images:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            encode = face_recognition.face_encodings(img)[0]
-            encodeList.append(encode)
-        return encodeList
+        if name not in nameList:
+            time_now = datetime.now()
+            tStr = time_now.strftime('%H:%M:%S')
+            dStr = time_now.strftime('%d/%m/%Y')
+            f.writelines(f'\n{name},{tStr},{dStr},{"Present"}')
 
-    def Attendance(name):
-        with open('Attendance.csv', 'r+') as f:
-            myDataList = f.readlines()
-            nameList = []
-            for line in myDataList:
-                entry = line.split(',')
-                nameList.append(entry[0])
-
-            if name not in nameList:
-                time_now = datetime.now()
-                tStr = time_now.strftime('%H:%M:%S')
-                dStr = time_now.strftime('%d/%m/%Y')
-                f.writelines(f'\n{name},{tStr},{dStr},{"Present"}')
-
-    encodeListKnown = faceEncodings(images)
-    print('All Encodings Complete!!!')
-    tkinter.messagebox.showinfo("Encoding Completed.", "All Encodings Complete!!!")
-
+def perform_face_recognition(encodeListKnown, personNames):
     cap = cv2.VideoCapture(0)
 
-    def new_func(faces):
+    def convert_to_rgb(faces):
         faces = cv2.cvtColor(faces, cv2.COLOR_BGR2RGB)
         return faces
 
     while True:
         ret, frame = cap.read()
         faces = cv2.resize(frame, (0, 0), None, 0.25, 0.25)
-        faces = new_func(faces)
+        faces = convert_to_rgb(faces)
 
         facesCurrentFrame = face_recognition.face_locations(faces)
         encodesCurrentFrame = face_recognition.face_encodings(faces, facesCurrentFrame)
@@ -74,7 +57,7 @@ def TakeAttendance():
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.rectangle(frame, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
                 cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-                Attendance(name)
+                attendance(name)
 
         cv2.imshow('Webcam', frame)
         if cv2.waitKey(1) == 13:
@@ -83,10 +66,24 @@ def TakeAttendance():
     cap.release()
     cv2.destroyAllWindows()
 
+def take_attendance():
+    tkinter.messagebox.showinfo("Encoding Start.", "Please wait a few seconds")
+    path = 'images'
+    images = []
+    personNames = []
+    myList = os.listdir(path)
 
-def showAttendance():
+    for cu_img in myList:
+        current_Img = cv2.imread(f'{path}/{cu_img}')
+        images.append(current_Img)
+        personNames.append(os.path.splitext(cu_img)[0])
+    print(personNames)
+    encodeListKnown = faceEncodings(images)
+    tkinter.messagebox.showinfo("Encoding Completed.", "All Encodings Complete!!!")
+    perform_face_recognition(encodeListKnown, personNames)
+
+def show_attendance():
     try:
         os.startfile("Attendance.csv")
     except OSError:
         tkinter.messagebox.showinfo("File Error", "Attendance file not found!")
-
